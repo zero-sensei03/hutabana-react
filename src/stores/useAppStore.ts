@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-interface AppInfo {
+export interface AppInfoProps {
   name: string;
   logo: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -9,8 +9,8 @@ interface AppInfo {
 }
 
 interface AppState {
-  appInfo: AppInfo | null;
-  setAppInfo: (info: AppInfo) => void;
+  appInfo: AppInfoProps | null;
+  setAppInfo: (info: AppInfoProps) => void;
 }
 
 export const useAppStore = create<AppState>()(

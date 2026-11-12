@@ -6,22 +6,23 @@ import {
   LogOut,
   CheckCircle2,
 } from "lucide-react";
-import { dummyLauncher } from "@/constants/DummyData";
 import { getCategoryIcon } from "@/constants/CategoryIcons";
 import { useNavigate } from "react-router";
 import { useAppStore } from "@/stores/useAppStore";
 import { LogoutModal } from "@/components/modal/LogoutModal";
 import { Input } from "@/components/ui/input";
+import { useModuleStore } from "@/stores/useModuleStore";
 
 export default function LauncherPage() {
+  const { moduleInfo } = useModuleStore();
   const { appInfo } = useAppStore();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const categoriesData = useMemo(() => {
-    return dummyLauncher.data.filter((its) => its.modules.length > 0);
-  }, []);
+    return (moduleInfo || []).filter((its) => its.modules.length > 0);
+  }, [moduleInfo]);
 
   const renderCategoryIcon = (iconName: string) => getCategoryIcon(iconName);
 

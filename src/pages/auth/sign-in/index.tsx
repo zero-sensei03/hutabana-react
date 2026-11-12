@@ -10,6 +10,8 @@ import {
   type LoginFormErrors,
   type LoginProps,
 } from "./sign-in.validate";
+import { useModuleStore } from "@/stores/useModuleStore";
+import { dummyLauncher } from "@/constants/DummyData";
 
 const initialData: LoginProps = {
   username: "",
@@ -18,6 +20,7 @@ const initialData: LoginProps = {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const setModule = useModuleStore((state) => state.setModuleInfo);
 
   const [data, setData] = useState<LoginProps>(initialData);
   const [errors, setErrors] = useState<LoginFormErrors>({});
@@ -78,6 +81,7 @@ export default function LoginPage() {
     }
 
     setIsLoading(true);
+    setModule(dummyLauncher.data);
     setTimeout(() => {
       setIsLoading(false);
       navigate("/portal");
