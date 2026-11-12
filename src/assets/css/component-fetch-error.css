@@ -1,0 +1,328 @@
+.edu-fetch-error {
+  --edu-error-primary: #ef4444;
+  --edu-error-secondary: #f97316;
+  --edu-error-accent: #facc15;
+  --edu-error-text: var(--foreground, #27272a);
+  --edu-error-muted: var(--muted-foreground, #71717a);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.edu-fetch-error *,
+.edu-fetch-error *::before,
+.edu-fetch-error *::after {
+  box-sizing: border-box;
+}
+
+/* Visual */
+
+.edu-fetch-error__visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  isolation: isolate;
+}
+
+.edu-fetch-error__glow {
+  position: absolute;
+  width: 90%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(239 68 68 / 16%) 0%,
+    rgb(249 115 22 / 8%) 45%,
+    transparent 72%
+  );
+  filter: blur(8px);
+  z-index: -1;
+}
+
+/* Book illustration */
+
+.edu-fetch-error__book {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 76%;
+  height: 65%;
+  transform: rotate(-5deg);
+  filter: drop-shadow(0 5px 5px rgb(0 0 0 / 8%));
+}
+
+.edu-fetch-error__page {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10%;
+  padding: 12%;
+  overflow: hidden;
+  border: 2px solid #d97706;
+  background: linear-gradient(145deg, #fef3c7, #fde68a);
+}
+
+.edu-fetch-error__page--left {
+  border-right: 0;
+  border-radius: 7px 0 0 5px;
+  transform: perspective(100px) rotateY(7deg);
+  transform-origin: right center;
+}
+
+.edu-fetch-error__page--right {
+  border-left: 0;
+  border-radius: 0 7px 5px 0;
+  transform: perspective(100px) rotateY(-7deg);
+  transform-origin: left center;
+}
+
+.edu-fetch-error__page span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  border-radius: 999px;
+  background: rgb(180 83 9 / 38%);
+}
+
+.edu-fetch-error__page span:last-child {
+  width: 65%;
+}
+
+.edu-fetch-error__spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #b45309, #f59e0b, #b45309);
+  transform: translateX(-50%);
+}
+
+/* Warning badge */
+
+.edu-fetch-error__warning {
+  position: absolute;
+  top: 0;
+  right: 2%;
+  display: grid;
+  place-items: center;
+  width: 34%;
+  aspect-ratio: 1;
+  border: 3px solid var(--edu-error-primary);
+  border-radius: 50%;
+  color: white;
+  background: linear-gradient(145deg, var(--edu-error-primary), #dc2626);
+  box-shadow:
+    0 4px 12px rgb(239 68 68 / 25%),
+    0 0 0 5px rgb(239 68 68 / 9%);
+  animation: edu-fetch-error-pulse 2.4s ease-in-out infinite;
+}
+
+.edu-fetch-error__warning span {
+  font-size: 1.5em;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Decorative sparkles */
+
+.edu-fetch-error__spark {
+  position: absolute;
+  color: var(--edu-error-secondary);
+  font-weight: 800;
+  user-select: none;
+}
+
+.edu-fetch-error__spark--one {
+  top: 9%;
+  left: 3%;
+  font-size: 1.25em;
+  animation: edu-fetch-error-float 3s ease-in-out infinite;
+}
+
+.edu-fetch-error__spark--two {
+  right: 5%;
+  bottom: 4%;
+  color: var(--edu-error-accent);
+  font-size: 2em;
+  animation: edu-fetch-error-float 3s ease-in-out infinite reverse;
+}
+
+/* Content */
+
+.edu-fetch-error__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 100%;
+}
+
+.edu-fetch-error__title {
+  color: var(--edu-error-text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.edu-fetch-error__description {
+  max-width: 420px;
+  color: var(--edu-error-muted);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+/* Retry button */
+
+.edu-fetch-error__retry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.625rem 1rem;
+  border: 1px solid rgb(239 68 68 / 35%);
+  border-radius: 0.5rem;
+  color: white;
+  background: linear-gradient(
+    135deg,
+    var(--edu-error-secondary),
+    var(--edu-error-primary)
+  );
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+
+.edu-fetch-error__retry:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.1);
+  box-shadow: 0 5px 14px rgb(239 68 68 / 20%);
+}
+
+.edu-fetch-error__retry:focus-visible {
+  outline: 3px solid rgb(249 115 22 / 45%);
+  outline-offset: 3px;
+}
+
+.edu-fetch-error__retry:active {
+  transform: translateY(0);
+}
+
+/* Sizes */
+
+.edu-fetch-error--sm .edu-fetch-error__visual {
+  width: 76px;
+  height: 68px;
+  font-size: 12px;
+}
+
+.edu-fetch-error--md .edu-fetch-error__visual {
+  width: 112px;
+  height: 100px;
+  font-size: 14px;
+}
+
+.edu-fetch-error--lg .edu-fetch-error__visual {
+  width: 152px;
+  height: 136px;
+  font-size: 18px;
+}
+
+.edu-fetch-error--sm {
+  gap: 0.625rem;
+}
+
+.edu-fetch-error--sm .edu-fetch-error__title {
+  font-size: 0.875rem;
+}
+
+.edu-fetch-error--sm .edu-fetch-error__description {
+  font-size: 0.75rem;
+}
+
+.edu-fetch-error--lg .edu-fetch-error__title {
+  font-size: 1.125rem;
+}
+
+/* Layout variants */
+
+.edu-fetch-error--block {
+  min-height: 240px;
+  padding: 2rem 1rem;
+}
+
+.edu-fetch-error--inline {
+  min-height: 0;
+  padding: 1rem;
+  gap: 0.75rem;
+}
+
+.edu-fetch-error--inline .edu-fetch-error__visual {
+  width: 76px;
+  height: 68px;
+  font-size: 12px;
+}
+
+/* Screen reader */
+
+.edu-fetch-error__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes edu-fetch-error-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes edu-fetch-error-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edu-fetch-error__warning,
+  .edu-fetch-error__spark {
+    animation: none;
+  }
+
+  .edu-fetch-error__retry {
+    transition: none;
+  }
+}
