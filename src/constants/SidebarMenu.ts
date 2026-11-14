@@ -1,11 +1,14 @@
 import {
+  Activity,
   BookOpen,
   Building,
   Calendar,
+  CalendarDays,
   ChartLine,
   Clock,
-  Cog,
+  GraduationCap,
   Grid2x2,
+  LayoutGrid,
   UserGroup,
   UsersCollaboration,
   type LucideIcon,
@@ -26,66 +29,131 @@ export type sidebarType = {
 
 export const AcademicSidebarMenu: sidebarType[] = [
   {
-    title: "Dashboard",
+    title: "Overview",
     menu: [
       {
         icon: Grid2x2,
         name: "Dashboard",
-        key: "dashboard",
+        key: "overview",
         url: "/education-academic/academic",
+      },
+      {
+        icon: CalendarDays,
+        name: "Academic Calendar",
+        key: "schedule-event",
+        url: "/education-academic/academic/schedule-event",
       },
     ],
   },
   {
-    title: "Menu",
+    title: "Master Data",
     menu: [
       {
         icon: UserGroup,
-        name: "Students",
-        key: "students",
+        name: "Students / Participants",
+        key: "students-participants",
         url: "/education-academic/academic/students",
       },
       {
         icon: UsersCollaboration,
-        name: "Educators",
-        key: "educators",
-        url: "/education-academic/academic/educators",
+        name: "Teachers / Instructors",
+        key: "teachers-instructors",
+        url: "/education-academic/academic/teachers",
       },
       {
         icon: Building,
-        name: "Classes",
-        key: "classes",
+        name: "Classes / Groups",
+        key: "classes-groups",
         url: "/education-academic/academic/classes",
       },
       {
         icon: BookOpen,
-        name: "Subjects",
-        key: "subjects",
+        name: "Subjects / Programs",
+        key: "subjects-programs",
         url: "/education-academic/academic/subjects",
       },
       {
         icon: Calendar,
-        name: "Academic Year",
-        key: "academic-year",
-        url: "/education-academic/academic/academic-year",
+        name: "Academic Periods",
+        key: "academic-periods",
+        url: "/education-academic/academic/periods",
       },
+    ],
+  },
+  {
+    title: "Academic Operations",
+    menu: [
       {
         icon: Clock,
-        name: "Class Schedules",
-        key: "class-schedules",
-        url: "/education-academic/academic/class-schedules",
+        name: "Class Scheduling",
+        key: "class-scheduling",
+        url: "/education-academic/academic/schedules",
       },
+      {
+        icon: UserGroup,
+        name: "Class Enrollment",
+        key: "class-enrollment",
+        url: "/education-academic/academic/enrollments",
+      },
+      {
+        icon: UsersCollaboration,
+        name: "Teaching Assignments",
+        key: "teaching-assignments",
+        url: "/education-academic/academic/teaching-assignments",
+      },
+      {
+        icon: Activity,
+        name: "Academic Activities",
+        key: "academic-activities",
+        url: "/education-academic/academic/activities",
+      },
+    ],
+  },
+  {
+    title: "Evaluation & Progress",
+    menu: [
       {
         icon: ChartLine,
-        name: "Grade & Reports",
-        key: "grade-reports",
-        url: "/education-academic/academic/grade-reports",
+        name: "Academic Progress",
+        key: "academic-progress",
+        url: "/education-academic/academic/progress",
       },
       {
-        icon: Cog,
-        name: "Settings",
-        key: "settings",
-        url: "/education-academic/academic/settings",
+        icon: GraduationCap,
+        name: "Graduation / Completion",
+        key: "graduation-completion",
+        url: "/education-academic/academic/completion",
+      },
+    ],
+  },
+  {
+    title: "Reports",
+    menu: [
+      {
+        icon: ChartLine,
+        name: "Academic Reports",
+        key: "academic-reports",
+        url: "/education-academic/academic/reports",
+      },
+    ],
+  },
+];
+
+export const DashboardWorkspaceSidebarMenu: sidebarType[] = [
+  {
+    title: "Workspace",
+    menu: [
+      {
+        icon: Grid2x2,
+        name: "Dashboard",
+        key: "dashboard-workspace-overview",
+        url: "/education-academic/dashboard-and-workspace",
+      },
+      {
+        icon: LayoutGrid,
+        name: "Launcher catalog",
+        key: "dashboard-workspace-launchers",
+        url: "/portal",
       },
     ],
   },

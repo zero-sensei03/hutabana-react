@@ -98,7 +98,6 @@ const EmptyState = ({
             className="edu-empty__action"
             onClick={onAction}
           >
-            <span>+</span>
             {actionLabel}
           </button>
         )}

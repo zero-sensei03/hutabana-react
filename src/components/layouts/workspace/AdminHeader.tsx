@@ -1,28 +1,38 @@
 import { useEffect, useState } from "react";
 import {
-  Activity,
   Bell,
-  BookOpen,
   CalendarDays,
-  Check,
   ChevronDown,
   Clock,
-  CreditCard,
   GraduationCap,
+  LayoutGrid,
   LayoutDashboard,
   LogOut,
   Menu,
   Search,
-  Settings,
-  ShieldCheck,
-  User,
   Users,
   X,
+  CheckCheck,
 } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { LogoutModal } from "@/components/modal/LogoutModal";
+import { useLocation, useNavigate } from "react-router";
+import { useModuleStore } from "@/stores/useModuleStore";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  dashboardDemoProfiles,
+  useDashboardWorkspaceStore,
+  type DemoWorkspace,
+} from "@/pages/workspace/dashboard-workspace/dashboard-workspace-state";
 
 import {
   DropdownMenu,
@@ -33,6 +43,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "cn";
+import { useLayoutStore } from "@/stores/useLayoutStore";
 
 type AdminHeaderProps = {
   onMenuClick?: () => void;
@@ -40,70 +52,38 @@ type AdminHeaderProps = {
 
 const searchItems = [
   {
-    label: "Dashboard",
-    description: "Overview and statistics",
-    href: "/admin",
+    label: "Dashboard & Workspace",
+    description: "Organization overview and available launchers",
+    href: "/education-academic/dashboard-and-workspace",
     icon: LayoutDashboard,
+    moduleSlug: "dashboard-and-workspace",
   },
   {
-    label: "Students",
-    description: "Manage student records",
-    href: "/admin/students",
+    label: "Launcher catalog",
+    description: "Browse configured and planned modules",
+    href: "/portal",
+    icon: LayoutGrid,
+  },
+  {
+    label: "Academic Management",
+    description: "Academic records, schedules, and activities",
+    href: "/education-academic/academic",
     icon: GraduationCap,
+    moduleSlug: "academic",
   },
   {
-    label: "Teachers",
-    description: "Manage teachers",
-    href: "/admin/teachers",
+    label: "Students / Participants",
+    description: "Browse Academic Management student records",
+    href: "/education-academic/academic/students",
     icon: Users,
+    moduleSlug: "academic",
   },
   {
-    label: "Courses",
-    description: "Manage courses and subjects",
-    href: "/admin/courses",
-    icon: BookOpen,
-  },
-  {
-    label: "Attendance",
-    description: "View attendance records",
-    href: "/admin/attendance",
+    label: "Academic Calendar",
+    description: "View scheduled academic events",
+    href: "/education-academic/academic/calendar",
     icon: CalendarDays,
-  },
-  {
-    label: "Payments",
-    description: "Manage payments",
-    href: "/admin/payments",
-    icon: CreditCard,
-  },
-  {
-    label: "Settings",
-    description: "Manage application settings",
-    href: "/admin/settings",
-    icon: Settings,
-  },
-];
-
-const notifications = [
-  {
-    id: 1,
-    title: "New student registered",
-    description: "A new student account has been created.",
-    time: "5 minutes ago",
-    unread: true,
-  },
-  {
-    id: 2,
-    title: "Payment received",
-    description: "A payment has been recorded successfully.",
-    time: "20 minutes ago",
-    unread: true,
-  },
-  {
-    id: 3,
-    title: "Attendance report ready",
-    description: "Your latest attendance report is available.",
-    time: "1 hour ago",
-    unread: false,
+    moduleSlug: "academic",
   },
 ];
 
@@ -139,15 +119,41 @@ function useCurrentDateTime() {
 }
 
 export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
+  const { isCollapsed } = useLayoutStore();
   const { date, time, timeZone } = useCurrentDateTime();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const moduleInfo = useModuleStore((state) => state.moduleInfo);
+  const workspace = useDashboardWorkspaceStore((state) => state.workspace);
+  const setWorkspace = useDashboardWorkspaceStore(
+    (state) => state.setWorkspace,
+  );
+  const notifications = useDashboardWorkspaceStore(
+    (state) => state.notifications,
+  );
+  const markNotificationRead = useDashboardWorkspaceStore(
+    (state) => state.markNotificationRead,
+  );
+  const markAllNotificationsRead = useDashboardWorkspaceStore(
+    (state) => state.markAllNotificationsRead,
+  );
+  const profile = dashboardDemoProfiles[workspace];
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [unreadIds, setUnreadIds] = useState<number[]>(
-    notifications.filter((item) => item.unread).map((item) => item.id),
-  );
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
+  const enabledModules = new Set(
+    (moduleInfo ?? []).flatMap((category) =>
+      category.modules
+        .filter((module) => module.is_active)
+        .map((module) => module.slug),
+    ),
+  );
   const filteredItems = searchItems.filter((item) => {
+    if (workspace !== "Staff" && item.moduleSlug === "academic") return false;
+    if (item.moduleSlug && !enabledModules.has(item.moduleSlug)) return false;
     const query = searchQuery.trim().toLowerCase();
 
     if (!query) return true;
@@ -159,18 +165,16 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   });
 
   const navigateTo = (href: string) => {
-    window.location.assign(href);
+    setSearchOpen(false);
+    if (href.startsWith("/education-academic/")) {
+      useDashboardWorkspaceStore
+        .getState()
+        .recordLauncherUse(
+          href.includes("/academic") ? "academic" : "dashboard-and-workspace",
+        );
+    }
+    navigate(href);
   };
-
-  const markAllAsRead = () => {
-    setUnreadIds([]);
-  };
-
-  const markAsRead = (id: number) => {
-    setUnreadIds((current) => current.filter((itemId) => itemId !== id));
-  };
-
-  const unreadCount = unreadIds.length;
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
@@ -199,7 +203,15 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/90 backdrop-blur-xl">
+    <header
+      className={cn(
+        "sticky top-0 z-40 w-full border-b border-border/70 bg-white backdrop-blur-xl",
+        {
+          "md:ps-64": !isCollapsed,
+          "md:ps-16": isCollapsed,
+        },
+      )}
+    >
       <div className="flex h-18 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         {/* Mobile sidebar toggle */}
         <Button
@@ -356,14 +368,11 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger
               className="relative inline-flex size-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-muted"
-              aria-label="Notifications"
+              aria-label={`Notifications${notifications.some((item) => !item.read) ? `, ${notifications.filter((item) => !item.read).length} unread` : ""}`}
             >
               <Bell className="size-5" />
-
-              {unreadCount > 0 && (
-                <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-destructive/80 text-[9px] font-semibold text-white ring-2 ring-background">
-                  {unreadCount}
-                </span>
+              {notifications.some((item) => !item.read) && (
+                <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-destructive" />
               )}
             </DropdownMenuTrigger>
 
@@ -371,71 +380,58 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
               align="end"
               className="w-85 max-w-[calc(100vw-2rem)] p-0"
             >
-              <div className="flex items-center justify-between border-b px-4 py-3">
-                <div>
-                  <p className="text-sm font-semibold">Notifications</p>
-                  <p className="text-xs text-muted-foreground">
-                    {unreadCount} unread notification
-                    {unreadCount === 1 ? "" : "s"}
-                  </p>
-                </div>
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 px-2 text-xs"
-                  onClick={markAllAsRead}
-                  disabled={unreadCount === 0}
-                >
-                  <Check className="mr-1 size-3.5" />
-                  Mark all read
-                </Button>
+              <div className="border-b px-4 py-3">
+                <p className="text-sm font-semibold">Notifications</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Demo notifications · changes reset on refresh.
+                </p>
               </div>
-
-              <DropdownMenuGroup>
-                {notifications.map((notification) => {
-                  const isUnread = unreadIds.includes(notification.id);
-
-                  return (
-                    <DropdownMenuItem
-                      key={notification.id}
-                      onClick={() => markAsRead(notification.id)}
-                      className="items-start gap-3 whitespace-normal px-4 py-3"
+              {notifications.length ? (
+                <>
+                  <div className="max-h-72 divide-y overflow-y-auto">
+                    {notifications.map((item) => (
+                      <DropdownMenuItem
+                        key={item.id}
+                        onClick={() => {
+                          markNotificationRead(item.id);
+                          if (item.href) navigateTo(item.href);
+                        }}
+                        className="items-start gap-3 whitespace-normal px-4 py-3"
+                      >
+                        <span
+                          className={`mt-1.5 size-2 shrink-0 rounded-full ${item.read ? "bg-muted" : "bg-primary"}`}
+                        />
+                        <span>
+                          <span className="block text-sm font-medium">
+                            {item.title}
+                          </span>
+                          <span className="mt-1 block text-xs text-muted-foreground">
+                            {item.body}
+                          </span>
+                          <span className="mt-1 block text-[10px] text-muted-foreground">
+                            {item.date}
+                          </span>
+                        </span>
+                      </DropdownMenuItem>
+                    ))}
+                  </div>
+                  <div className="border-t p-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full"
+                      onClick={markAllNotificationsRead}
                     >
-                      <span
-                        className={`mt-1.5 size-2 shrink-0 rounded-full ${
-                          isUnread ? "bg-primary" : "bg-transparent"
-                        }`}
-                      />
-
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium">
-                          {notification.title}
-                        </p>
-
-                        <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                          {notification.description}
-                        </p>
-
-                        <p className="mt-1.5 text-[10px] text-muted-foreground">
-                          {notification.time}
-                        </p>
-                      </div>
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuGroup>
-
-              <DropdownMenuSeparator />
-
-              <button
-                type="button"
-                onClick={() => navigateTo("/admin/notifications")}
-                className="w-full px-4 py-3 text-center text-xs font-medium text-primary transition-colors hover:bg-muted"
-              >
-                View all notifications
-              </button>
+                      <CheckCheck />
+                      Mark all as read
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+                  You are all caught up.
+                </p>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
           {/* Divider */}
@@ -445,20 +441,21 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger className="flex min-w-0 shrink-0 items-center gap-2 rounded-lg p-1.5 text-left transition-colors hover:bg-muted">
               <Avatar className="size-9 rounded-lg">
-                <AvatarImage src="" alt="Administrator" />
-
                 <AvatarFallback className="rounded-lg bg-primary/10 text-sm font-semibold text-primary">
-                  AD
+                  {profile.name
+                    .split(" ")
+                    .map((part) => part[0])
+                    .join("")}
                 </AvatarFallback>
               </Avatar>
 
               <div className="hidden min-w-0 flex-col items-start lg:flex">
                 <span className="max-w-32 truncate text-sm font-semibold">
-                  Administrator
+                  {profile.name}
                 </span>
 
                 <span className="text-xs text-muted-foreground">
-                  Super Admin
+                  {workspace} demo workspace
                 </span>
               </div>
 
@@ -471,16 +468,19 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                   <div className="flex items-center gap-3">
                     <Avatar className="size-10 rounded-lg">
                       <AvatarFallback className="rounded-lg bg-primary/10 font-semibold text-primary">
-                        AD
+                        {profile.name
+                          .split(" ")
+                          .map((part) => part[0])
+                          .join("")}
                       </AvatarFallback>
                     </Avatar>
 
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold">
-                        Administrator
+                        {profile.name}
                       </p>
                       <p className="truncate text-xs font-normal text-muted-foreground">
-                        admin@example.com
+                        {profile.role} · not an authenticated identity
                       </p>
                     </div>
                   </div>
@@ -488,43 +488,58 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
                 <DropdownMenuSeparator />
 
+                <DropdownMenuLabel className="px-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+                  Switch demo presentation
+                </DropdownMenuLabel>
+                {(["Staff", "Student", "Parent"] as DemoWorkspace[]).map(
+                  (item) => (
+                    <DropdownMenuItem
+                      key={item}
+                      onClick={() => {
+                        setWorkspace(item);
+                        if (
+                          location.pathname.startsWith(
+                            "/education-academic/academic",
+                          )
+                        ) {
+                          navigateTo(
+                            "/education-academic/dashboard-and-workspace",
+                          );
+                        }
+                      }}
+                      className="gap-2.5 py-2"
+                    >
+                      <span
+                        className={`size-2 rounded-full ${workspace === item ? "bg-primary" : "bg-muted-foreground/30"}`}
+                      />
+                      {item} Workspace{workspace === item ? " · current" : ""}
+                    </DropdownMenuItem>
+                  ),
+                )}
+
+                <DropdownMenuSeparator />
+
                 <DropdownMenuItem
-                  onClick={() => navigateTo("/admin/profile")}
+                  onClick={() => setProfileOpen(true)}
                   className="gap-2.5 py-2"
                 >
-                  <User className="size-4 text-muted-foreground" />
-                  My profile
+                  <Users className="size-4 text-muted-foreground" />
+                  Demo profile overview
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                  onClick={() => navigateTo("/admin/settings")}
+                  onClick={() => navigateTo("/portal")}
                   className="gap-2.5 py-2"
                 >
-                  <Settings className="size-4 text-muted-foreground" />
-                  Account settings
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  onClick={() => navigateTo("/admin/security")}
-                  className="gap-2.5 py-2"
-                >
-                  <ShieldCheck className="size-4 text-muted-foreground" />
-                  Security
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  onClick={() => navigateTo("/admin/activity")}
-                  className="gap-2.5 py-2"
-                >
-                  <Activity className="size-4 text-muted-foreground" />
-                  Activity log
+                  <LayoutGrid className="size-4 text-muted-foreground" />
+                  Launcher catalog
                 </DropdownMenuItem>
               </DropdownMenuGroup>
 
               <DropdownMenuSeparator />
 
               <DropdownMenuItem
-                onClick={() => navigateTo("/logout")}
+                onClick={() => setLogoutOpen(true)}
                 className="gap-2.5 py-2 text-destructive focus:text-destructive"
               >
                 <LogOut className="size-4" />
@@ -534,6 +549,35 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           </DropdownMenu>
         </div>
       </div>
+      <LogoutModal
+        isOpen={logoutOpen}
+        onOpenChange={() => setLogoutOpen((current) => !current)}
+      />
+      <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{profile.name}</DialogTitle>
+            <DialogDescription>{profile.role}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 rounded-lg border p-4 text-sm">
+            <p>
+              <span className="text-muted-foreground">Organization: </span>
+              MeiFaLabs Demo Organization
+            </p>
+            <p>
+              <span className="text-muted-foreground">Presentation: </span>
+              {workspace} Workspace
+            </p>
+            <p className="text-xs text-muted-foreground">
+              This local demo profile is not provided by authentication and does
+              not describe actual account permissions.
+            </p>
+          </div>
+          <Button variant="outline" onClick={() => setProfileOpen(false)}>
+            Close
+          </Button>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }

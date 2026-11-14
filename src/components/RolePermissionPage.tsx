@@ -37,13 +37,17 @@ const RolePermissionPage = ({
     hasAccess = moduleInfo.some(
       (cat) =>
         categories.includes(cat.slug) &&
-        cat.modules.some((mod) => permissions.includes(mod.slug)),
+        cat.modules.some(
+          (mod) => mod.is_active && permissions.includes(mod.slug),
+        ),
     );
   } else if (categories.length > 0) {
     hasAccess = moduleInfo.some((cat) => categories.includes(cat.slug));
   } else if (permissions.length > 0) {
     hasAccess = moduleInfo.some((cat) =>
-      cat.modules.some((mod) => permissions.includes(mod.slug)),
+      cat.modules.some(
+        (mod) => mod.is_active && permissions.includes(mod.slug),
+      ),
     );
   }
 

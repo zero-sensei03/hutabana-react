@@ -190,8 +190,17 @@ export default function LauncherPage() {
                   {category.modules.map((mod) => (
                     <div
                       key={mod.code}
-                      onClick={() => handleModuleClick(category.slug, mod.slug)}
-                      className="group relative bg-card border border-border/70 hover:border-ring/50 rounded-lg p-5 shadow-2xs hover:shadow-xl hover:shadow-black/3 transition-all duration-300 flex flex-col justify-between cursor-pointer"
+                      onClick={() => {
+                        if (mod.is_active) {
+                          handleModuleClick(category.slug, mod.slug);
+                        }
+                      }}
+                      aria-disabled={!mod.is_active}
+                      className={`group relative flex flex-col justify-between rounded-lg border border-border/70 bg-card p-5 shadow-2xs transition-all duration-300 ${
+                        mod.is_active
+                          ? "cursor-pointer hover:border-ring/50 hover:shadow-xl hover:shadow-black/3"
+                          : "cursor-not-allowed opacity-65"
+                      }`}
                     >
                       <div>
                         <div className="flex items-center justify-between mb-3">
@@ -210,13 +219,27 @@ export default function LauncherPage() {
 
                       {/* Card Footer Indicator */}
                       <div className="mt-5 pt-3 border-t border-border/40 flex items-center justify-between text-[11px] text-muted-foreground font-medium">
-                        <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          Ready to Launch
+                        <span
+                          className={`inline-flex items-center gap-1 ${
+                            mod.is_active
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          {mod.is_active ? (
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          ) : null}
+                          {mod.is_active ? "Ready to Launch" : "Planned"}
                         </span>
-                        <span className="group-hover:translate-x-0.5 transition-transform text-primary font-semibold flex items-center gap-1">
-                          Access <ArrowRight className="w-3 h-3" />
-                        </span>
+                        {mod.is_active ? (
+                          <span className="flex items-center gap-1 font-semibold text-primary transition-transform group-hover:translate-x-0.5">
+                            Access <ArrowRight className="w-3 h-3" />
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">
+                            Coming soon
+                          </span>
+                        )}
                       </div>
                     </div>
                   ))}
