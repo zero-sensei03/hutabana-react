@@ -18,6 +18,17 @@ const ScheduleEventDetail = lazy(
     import("@/pages/workspace/education-academic/academic/schedule-event/detail"),
 );
 
+const Students = lazy(
+  () => import("@/pages/workspace/education-academic/academic/students"),
+);
+const StudentsCreate = lazy(
+  () => import("@/pages/workspace/education-academic/academic/students/create"),
+);
+const StudentsDetail = lazy(
+  () => import("@/pages/workspace/education-academic/academic/students/detail"),
+);
+
+
 const AcademicEntityPage = lazy(
   () =>
     import("@/pages/workspace/education-academic/academic/AcademicEntityPage"),
@@ -44,6 +55,7 @@ const EduAcademicRoute: RouteObject[] = [
     path: "academic",
     children: [
       { index: true, element: permitted(<Dashboard />) },
+      
       { path: "schedule-event", element: permitted(<ScheduleEvent />) },
       {
         path: "schedule-event/create",
@@ -53,6 +65,11 @@ const EduAcademicRoute: RouteObject[] = [
         path: "schedule-event/detail/:id",
         element: permitted(<ScheduleEventDetail />),
       },
+
+      { path: "students", element: permitted(<Students />) },
+      { path: "students/create", element: permitted(<StudentsCreate />) },
+      { path: "students/detail/:id", element: permitted(<StudentsDetail />) },
+
 
       { path: "progress", element: permitted(<AcademicProgressPage />) },
       { path: "reports", element: permitted(<AcademicReportsPage />) },
